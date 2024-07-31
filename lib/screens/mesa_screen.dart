@@ -1,7 +1,48 @@
-import 'package:desayunos_valderrama/screens/mesa_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class HomeScreen extends StatelessWidget {
+
+class MesaScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Desayunos Valderrama',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final SupabaseClient supabase = Supabase.instance.client;
+  List<dynamic> mesas = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchMesas();
+  }
+
+  Future<void> fetchMesas() async {
+    final response = await supabase
+        .from('mesa')
+        .select();
+    if (response.length > 0) {
+      setState(() {
+        mesas = response as List<dynamic>;
+      });
+    } else {
+      print('Error fetching mesas: ${response.error!.message}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,9 +56,8 @@ class HomeScreen extends StatelessWidget {
               InkWell(
                 onTap: () {
                   // Acción para 'Home'
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Inicio')),
                   );
                 },
                 child: Text(
@@ -32,9 +72,8 @@ class HomeScreen extends StatelessWidget {
               InkWell(
                 onTap: () {
                   // Acción para 'Mesas'
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MesaScreen()),
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Mesas')),
                   );
                 },
                 child: Text(
@@ -82,16 +121,37 @@ class HomeScreen extends StatelessWidget {
         ),
         automaticallyImplyLeading: false, // Esto oculta el botón de atrás
       ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: Center(
-              child: Image.asset('assets/logo.png'),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Asignar mesa',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-          ),
-        ],
+            SizedBox(height: 16),
+            Expanded(
+              child: mesas.isEmpty
+                  ? Center(child: CircularProgressIndicator())
+                  : DataTable(
+                      columns: const [
+                        DataColumn(label: Text('ID')),
+                        DataColumn(label: Text('Número')),
+                        DataColumn(label: Text('Estatus')),
+                      ],
+                      rows: mesas
+                          .map((mesa) => DataRow(cells: [
+                                DataCell(Text(mesa['id'].toString())),
+                                DataCell(Text(mesa['numero'].toString())),
+                                DataCell(Text(mesa['estatus'].toString())),
+                              ]))
+                          .toList(),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-
