@@ -1,5 +1,7 @@
+import 'package:desayunos_valderrama/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:math';
 
 
 class MesaScreen extends StatelessWidget {
@@ -33,14 +35,29 @@ class _HomePageState extends State<HomePage> {
   Future<void> fetchMesas() async {
     final response = await supabase
         .from('mesa')
-        .select();
+        .select()
+        .order('id', ascending: true);
     if (response.length > 0) {
       setState(() {
         mesas = response as List<dynamic>;
       });
     } else {
-      print('Error fetching mesas: ${response.error!.message}');
+      print('Error fetching mesas');
     }
+  }
+
+  Future<void> asignarMesa(int id, String cliente, int comanda) async {
+        await supabase
+        .from('mesa')
+        .update({
+          'cliente': cliente,
+          'comanda': comanda,
+          'estatus': 'Asignada',
+        })
+        .eq('id', id);
+
+      fetchMesas(); // Refrescar las mesas después de la actualización
+
   }
 
   @override
@@ -55,10 +72,11 @@ class _HomePageState extends State<HomePage> {
             children: [
               InkWell(
                 onTap: () {
-                  // Acción para 'Home'
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Inicio')),
-                  );
+                  Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => HomeScreen()),
+      (Route<dynamic> route) => false,
+    );
                 },
                 child: Text(
                   'Inicio',
@@ -72,8 +90,9 @@ class _HomePageState extends State<HomePage> {
               InkWell(
                 onTap: () {
                   // Acción para 'Mesas'
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Mesas')),
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => MesaScreen()),
                   );
                 },
                 child: Text(
@@ -84,6 +103,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
+
               SizedBox(width: 100), // Espacio entre los textos
               InkWell(
                 onTap: () {
@@ -122,36 +142,96 @@ class _HomePageState extends State<HomePage> {
         automaticallyImplyLeading: false, // Esto oculta el botón de atrás
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Asignar mesa',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
-            Expanded(
-              child: mesas.isEmpty
-                  ? Center(child: CircularProgressIndicator())
-                  : DataTable(
+  padding: const EdgeInsets.all(16.0),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.center, // Cambiado a center para centrar la columna
+    children: [
+      Center( // Añadido Center para centrar el título
+        child: Text(
+          'Asignar mesa',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+      ),
+      SizedBox(height: 16),
+      Expanded(
+        child: mesas.isEmpty
+            ? Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Center( // Añadido Center para centrar la tabla
+                    child: DataTable(
                       columns: const [
-                        DataColumn(label: Text('ID')),
                         DataColumn(label: Text('Número')),
                         DataColumn(label: Text('Estatus')),
+                        DataColumn(label: Text('Cliente')),
+                        DataColumn(label: Text('N. Comanda')),
+                        DataColumn(label: Text('Asignar')),
                       ],
                       rows: mesas
                           .map((mesa) => DataRow(cells: [
-                                DataCell(Text(mesa['id'].toString())),
                                 DataCell(Text(mesa['numero'].toString())),
                                 DataCell(Text(mesa['estatus'].toString())),
+                                DataCell(Text(mesa['cliente'] ?? '')),
+                                DataCell(Text(mesa['comanda']?.toString() ?? '')),
+                                DataCell(
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          final TextEditingController clienteController = TextEditingController();
+                                          final int comanda = Random().nextInt(900000) + 100000; // Generar número aleatorio de 6 dígitos
+                                          return AlertDialog(
+                                            title: Text('Asignar'),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text('ID de Mesa: ${mesa['id']}'),
+                                                SizedBox(height: 8),
+                                                Text('Número de Comanda: $comanda'),
+                                                TextField(
+                                                  controller: clienteController,
+                                                  decoration: InputDecoration(
+                                                    labelText: 'Nombre del Cliente',
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: Text('Cancelar'),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  asignarMesa(mesa['id'], clienteController.text, comanda);
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: Text('Guardar'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Text('Asignar'),
+                                  ),
+                                ),
                               ]))
                           .toList(),
                     ),
-            ),
-          ],
-        ),
+                  ),
+                ),
+              ),
       ),
+    ],
+  ),
+),
+
     );
   }
 }
