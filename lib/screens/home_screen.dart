@@ -1,4 +1,5 @@
 import 'package:desayunos_valderrama/screens/mesa_screen.dart';
+import 'package:desayunos_valderrama/screens/pedido_screen.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -49,8 +50,9 @@ class HomeScreen extends StatelessWidget {
               InkWell(
                 onTap: () {
                   // Acción para 'Ordenes'
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Ordenes')),
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => PedidoScreen()),
                   );
                 },
                 child: Text(

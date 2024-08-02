@@ -1,4 +1,5 @@
 import 'package:desayunos_valderrama/screens/home_screen.dart';
+import 'package:desayunos_valderrama/screens/pedido_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:math';
@@ -108,8 +109,9 @@ class _HomePageState extends State<HomePage> {
               InkWell(
                 onTap: () {
                   // Acción para 'Ordenes'
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Ordenes')),
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => PedidoScreen()),
                   );
                 },
                 child: Text(
