@@ -1,5 +1,4 @@
 import 'package:desayunos_valderrama/screens/home_screen.dart';
-import 'package:desayunos_valderrama/screens/mesa_screen.dart';
 import 'package:desayunos_valderrama/screens/mesas_mesero_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -89,16 +88,18 @@ class _PedidoScreenState extends State<PedidoScreen> {
   Future<void> generarPedido() async {
     if (selectedMesa == null) return;
 
-     await supabase.from('pedido').insert({
+    await supabase.from('pedido').insert({
       'estatus': 'En revisión',
       'idMesa': selectedMesa,
     });
 
     final latestPedidoResponse = await supabase
-      .from('pedido')
-      .select()
-      .order('id', ascending: false) // Asegúrate de usar el campo correcto para ordenar
-      .limit(1);
+        .from('pedido')
+        .select()
+        .order('id',
+            ascending:
+                false) // Asegúrate de usar el campo correcto para ordenar
+        .limit(1);
 
     final idPedido = latestPedidoResponse[0]['id'];
 
@@ -115,9 +116,8 @@ class _PedidoScreenState extends State<PedidoScreen> {
     }
 
     await supabase
-      .from('mesa')
-      .update({'estatus': 'Orden tomada'})
-      .eq('id', selectedMesa);
+        .from('mesa')
+        .update({'estatus': 'Orden tomada'}).eq('id', selectedMesa);
 
     setState(() {
       pedido.clear();
@@ -263,7 +263,8 @@ class _PedidoScreenState extends State<PedidoScreen> {
                   // Acción para 'Mesas'
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => MeseroMesasScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => MeseroMesasScreen()),
                   );
                 },
                 child: Text(
