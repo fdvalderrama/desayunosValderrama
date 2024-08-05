@@ -43,7 +43,7 @@ class _CocinaScreenState extends State<CocinaScreen> {
   Future<void> finalizarPedido(int idPedido, int idMesa) async {
     await supabase
         .from('pedido')
-        .update({'estatus': 'Completado'})
+        .update({'estatus': 'Entregado'})
         .eq('id', idPedido);
 
     await supabase
