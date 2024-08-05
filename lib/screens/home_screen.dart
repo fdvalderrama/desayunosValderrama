@@ -1,5 +1,6 @@
 import 'package:desayunos_valderrama/screens/caja_screen.dart';
 import 'package:desayunos_valderrama/screens/cocina_screen.dart';
+import 'package:desayunos_valderrama/screens/corredor_screen.dart';
 import 'package:desayunos_valderrama/screens/mesa_screen.dart';
 import 'package:desayunos_valderrama/screens/mesas_mesero_screen.dart';
 import 'package:desayunos_valderrama/screens/pedido_screen.dart';
@@ -134,6 +135,25 @@ class HomeScreen extends StatelessWidget {
                       },
                       child: Text(
                         'Caja',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (userRole == 'Corredor' || userRole == 'Admin') ...[
+                    SizedBox(width: 100),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CorredorScreen()),
+                        );
+                      },
+                      child: Text(
+                        'Corredor',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14.0,
