@@ -1,5 +1,7 @@
 import 'package:desayunos_valderrama/screens/home_screen.dart';
 import 'package:desayunos_valderrama/screens/mesa_screen.dart';
+import 'package:desayunos_valderrama/screens/mesas_mesero_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -23,6 +25,11 @@ class _PedidoScreenState extends State<PedidoScreen> {
     fetchMesas();
   }
 
+  Future<String?> _getUserRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userRole');
+  }
+
   Future<void> fetchProductos() async {
     final response =
         await supabase.from('producto').select().order('id', ascending: true);
@@ -32,13 +39,30 @@ class _PedidoScreenState extends State<PedidoScreen> {
   }
 
   Future<void> fetchMesas() async {
+    final userId = await _getUserId();
+    if (userId == null) {
+      print('Error: User ID not found in SharedPreferences');
+      return;
+    }
+
     final response = await supabase
-        .from('mesa')
-        .select('id, numero')
-        .order('numero', ascending: true);
-    setState(() {
-      mesas = response as List<dynamic>;
-    });
+        .from('mesasAsignadas')
+        .select('mesa(id, numero)')
+        .eq('idUsuario', userId)
+        .order('id', ascending: true);
+
+    if (response.length > 0) {
+      setState(() {
+        mesas = response.map((mesaAsignada) => mesaAsignada['mesa']).toList();
+      });
+    } else {
+      print('Error fetching mesas');
+    }
+  }
+
+  Future<int?> _getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt("userId");
   }
 
   Future<void> fetchIngredientesOpcionales(int idProducto) async {
@@ -65,21 +89,35 @@ class _PedidoScreenState extends State<PedidoScreen> {
   Future<void> generarPedido() async {
     if (selectedMesa == null) return;
 
-    final pedidoResponse = await supabase.from('pedido').insert({
-      'estatus': 'En espera',
+     await supabase.from('pedido').insert({
+      'estatus': 'En revisión',
       'idMesa': selectedMesa,
     });
 
-    final idPedido = pedidoResponse.data[0]['id'];
+    final latestPedidoResponse = await supabase
+      .from('pedido')
+      .select()
+      .order('id', ascending: false) // Asegúrate de usar el campo correcto para ordenar
+      .limit(1);
+
+    final idPedido = latestPedidoResponse[0]['id'];
 
     for (var item in pedido) {
+      var cantidadItem = item['cantidad'];
+      var idProductoItem = item['producto']['id'];
+      var ingredienteOpcionalItem = item['ingredientesOpcionales'].join(', ');
       await supabase.from('detallePedido').insert({
-        'cantidad': item['cantidad'],
+        'cantidad': cantidadItem,
         'idPedido': idPedido,
-        'idProducto': item['producto']['id'],
-        'ingredientesOpcionales': item['ingredientesOpcionales'].join(', '),
+        'idProducto': idProductoItem,
+        'ingredientesOpcionales': ingredienteOpcionalItem,
       });
     }
+
+    await supabase
+      .from('mesa')
+      .update({'estatus': 'Orden tomada'})
+      .eq('id', selectedMesa);
 
     setState(() {
       pedido.clear();
@@ -223,21 +261,20 @@ class _PedidoScreenState extends State<PedidoScreen> {
               InkWell(
                 onTap: () {
                   // Acción para 'Mesas'
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => MesaScreen()),
+                    MaterialPageRoute(builder: (context) => MeseroMesasScreen()),
                   );
                 },
                 child: Text(
                   'Mesas',
                   style: TextStyle(
-                      color: Colors.white,
-                      fontSize:
-                          14.0 // Ajusta el tamaño del texto según sea necesario
-                      ),
+                    color: Colors.white,
+                    fontSize: 14.0,
+                  ),
                 ),
               ),
-              SizedBox(width: 100), // Espacio entre los textos
+              SizedBox(width: 100),
               InkWell(
                 onTap: () {
                   // Acción para 'Ordenes'
@@ -247,7 +284,7 @@ class _PedidoScreenState extends State<PedidoScreen> {
                   );
                 },
                 child: Text(
-                  'Ordenes',
+                  'Pedido',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize:
@@ -256,22 +293,6 @@ class _PedidoScreenState extends State<PedidoScreen> {
                 ),
               ),
               SizedBox(width: 100), // Espacio entre los textos
-              InkWell(
-                onTap: () {
-                  // Acción para 'Caja'
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Caja')),
-                  );
-                },
-                child: Text(
-                  'Caja',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize:
-                          14.0 // Ajusta el tamaño del texto según sea necesario
-                      ),
-                ),
-              ),
             ],
           ),
         ),

@@ -1,5 +1,4 @@
 import 'package:desayunos_valderrama/screens/home_screen.dart';
-import 'package:desayunos_valderrama/screens/pedido_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:math';
@@ -73,11 +72,10 @@ class _HomePageState extends State<HomePage> {
             children: [
               InkWell(
                 onTap: () {
-                  Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => HomeScreen()),
-      (Route<dynamic> route) => false,
-    );
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                  );
                 },
                 child: Text(
                   'Inicio',
@@ -104,40 +102,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-
-              SizedBox(width: 100), // Espacio entre los textos
-              InkWell(
-                onTap: () {
-                  // Acción para 'Ordenes'
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => PedidoScreen()),
-                  );
-                },
-                child: Text(
-                  'Ordenes',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14.0 // Ajusta el tamaño del texto según sea necesario
-                  ),
-                ),
-              ),
-              SizedBox(width: 100), // Espacio entre los textos
-              InkWell(
-                onTap: () {
-                  // Acción para 'Caja'
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Caja')),
-                  );
-                },
-                child: Text(
-                  'Caja',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14.0 // Ajusta el tamaño del texto según sea necesario
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -148,7 +112,7 @@ class _HomePageState extends State<HomePage> {
   child: Column(
     crossAxisAlignment: CrossAxisAlignment.center, // Cambiado a center para centrar la columna
     children: [
-      Center( // Añadido Center para centrar el título
+      const Center( // Añadido Center para centrar el título
         child: Text(
           'Asignar mesa',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
