@@ -43,13 +43,11 @@ class _CocinaScreenState extends State<CocinaScreen> {
   Future<void> finalizarPedido(int idPedido, int idMesa) async {
     await supabase
         .from('pedido')
-        .update({'estatus': 'Entregado'})
-        .eq('id', idPedido);
+        .update({'estatus': 'Entregado'}).eq('id', idPedido);
 
     await supabase
         .from('mesa')
-        .update({'estatus': 'Comiendo'})
-        .eq('id', idMesa);
+        .update({'estatus': 'Comiendo'}).eq('id', idMesa);
 
     fetchPedidos();
     setState(() {
@@ -102,7 +100,6 @@ class _CocinaScreenState extends State<CocinaScreen> {
                       ),
                 ),
               ),
-              SizedBox(width: 100), // Espacio entre los textos
             ],
           ),
         ),
@@ -116,10 +113,12 @@ class _CocinaScreenState extends State<CocinaScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Center( // Añadido Center para centrar el título
+                  const Center(
+                    // Añadido Center para centrar el título
                     child: Text(
                       'Pedido',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                   ),
                   Expanded(
@@ -138,7 +137,8 @@ class _CocinaScreenState extends State<CocinaScreen> {
                             return DataRow(
                               cells: [
                                 DataCell(Text(pedido['id'].toString())),
-                                DataCell(Text(pedido['mesa']['comanda'].toString())),
+                                DataCell(
+                                    Text(pedido['mesa']['comanda'].toString())),
                                 DataCell(Text(pedido['estatus'].toString())),
                                 DataCell(Row(
                                   children: [
@@ -151,7 +151,8 @@ class _CocinaScreenState extends State<CocinaScreen> {
                                     SizedBox(width: 8),
                                     ElevatedButton(
                                       onPressed: () {
-                                        finalizarPedido(pedido['id'], pedido['idMesa']);
+                                        finalizarPedido(
+                                            pedido['id'], pedido['idMesa']);
                                       },
                                       child: Text('Finalizar'),
                                     ),
@@ -172,15 +173,19 @@ class _CocinaScreenState extends State<CocinaScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Center( // Añadido Center para centrar el título
+                  const Center(
+                    // Añadido Center para centrar el título
                     child: Text(
                       'Detalle pedido',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                   ),
                   Expanded(
                     child: detallePedido.isEmpty
-                        ? Center(child: Text('Selecciona un pedido para ver los detalles'))
+                        ? Center(
+                            child: Text(
+                                'Selecciona un pedido para ver los detalles'))
                         : SingleChildScrollView(
                             scrollDirection: Axis.vertical,
                             child: SingleChildScrollView(
@@ -189,8 +194,10 @@ class _CocinaScreenState extends State<CocinaScreen> {
                                 columns: const [
                                   DataColumn(label: Text('ID Detalle')),
                                   DataColumn(label: Text('Cantidad')),
-                                  DataColumn(label: Text('Nombre del Producto')),
-                                  DataColumn(label: Text('Ingredientes Opcionales')),
+                                  DataColumn(
+                                      label: Text('Nombre del Producto')),
+                                  DataColumn(
+                                      label: Text('Ingredientes Opcionales')),
                                 ],
                                 rows: detallePedido.map((detalle) {
                                   return DataRow(
@@ -201,15 +208,20 @@ class _CocinaScreenState extends State<CocinaScreen> {
                                       )),
                                       DataCell(Container(
                                         width: 80,
-                                        child: Text(detalle['cantidad'].toString()),
+                                        child: Text(
+                                            detalle['cantidad'].toString()),
                                       )),
                                       DataCell(Container(
                                         width: 150,
-                                        child: Text(detalle['producto']['nombre'].toString()),
+                                        child: Text(detalle['producto']
+                                                ['nombre']
+                                            .toString()),
                                       )),
                                       DataCell(Container(
                                         width: 200,
-                                        child: Text(detalle['ingredientesOpcionales'].toString()),
+                                        child: Text(
+                                            detalle['ingredientesOpcionales']
+                                                .toString()),
                                       )),
                                     ],
                                   );

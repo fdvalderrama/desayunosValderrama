@@ -1,3 +1,4 @@
+import 'package:desayunos_valderrama/screens/caja_screen.dart';
 import 'package:desayunos_valderrama/screens/cocina_screen.dart';
 import 'package:desayunos_valderrama/screens/mesa_screen.dart';
 import 'package:desayunos_valderrama/screens/mesas_mesero_screen.dart';
@@ -30,24 +31,23 @@ class HomeScreen extends StatelessWidget {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  
-                    InkWell(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => HomeScreen()),
-                        );
-                      },
-                      child: Text(
-                        'Inicio',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14.0,
-                        ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                      );
+                    },
+                    child: Text(
+                      'Inicio',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.0,
                       ),
                     ),
-                    if (userRole == 'Host' || userRole == 'Admin') ...[
-                      SizedBox(width: 100),
+                  ),
+                  if (userRole == 'Host' || userRole == 'Admin') ...[
+                    SizedBox(width: 100),
                     InkWell(
                       onTap: () {
                         Navigator.push(
@@ -65,22 +65,23 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                   if (userRole == 'Mesero' || userRole == 'Admin') ...[
-                  SizedBox(width: 100), // Espacio entre los textos
-                InkWell(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => MeseroMesasScreen()),
-                    );
-                  },
-                  child: Text(
-                    'Mesas',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.0,
+                    SizedBox(width: 100), // Espacio entre los textos
+                    InkWell(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MeseroMesasScreen()),
+                        );
+                      },
+                      child: Text(
+                        'Mesas',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.0,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
                   ],
                   if (userRole == 'Mesero' || userRole == 'Admin') ...[
                     SizedBox(width: 100),
@@ -88,7 +89,8 @@ class HomeScreen extends StatelessWidget {
                       onTap: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => PedidoScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => PedidoScreen()),
                         );
                       },
                       child: Text(
@@ -101,13 +103,14 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                   if (userRole == 'Cocina' || userRole == 'Admin') ...[
-                      SizedBox(width: 100), // Espacio entre los textos
+                    SizedBox(width: 100), // Espacio entre los textos
                     InkWell(
                       onTap: () {
                         // Acción para 'Ordenes'
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => CocinaScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => CocinaScreen()),
                         );
                       },
                       child: Text(
@@ -124,8 +127,9 @@ class HomeScreen extends StatelessWidget {
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Caja')),
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => CajaScreen()),
                         );
                       },
                       child: Text(
