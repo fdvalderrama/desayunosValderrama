@@ -1,6 +1,7 @@
 import 'package:desayunos_valderrama/screens/caja_screen.dart';
 import 'package:desayunos_valderrama/screens/cocina_screen.dart';
 import 'package:desayunos_valderrama/screens/corredor_screen.dart';
+import 'package:desayunos_valderrama/screens/empleados_screen.dart';
 import 'package:desayunos_valderrama/screens/mesa_screen.dart';
 import 'package:desayunos_valderrama/screens/mesas_mesero_screen.dart';
 import 'package:desayunos_valderrama/screens/pedido_screen.dart';
@@ -47,7 +48,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (userRole == 'Host' || userRole == 'Admin') ...[
+                  if (userRole == 'Host') ...[
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {
@@ -65,7 +66,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (userRole == 'Mesero' || userRole == 'Admin') ...[
+                  if (userRole == 'Mesero') ...[
                     SizedBox(width: 100), // Espacio entre los textos
                     InkWell(
                       onTap: () {
@@ -84,7 +85,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (userRole == 'Mesero' || userRole == 'Admin') ...[
+                  if (userRole == 'Mesero') ...[
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {
@@ -103,7 +104,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (userRole == 'Cocina' || userRole == 'Admin') ...[
+                  if (userRole == 'Cocina') ...[
                     SizedBox(width: 100), // Espacio entre los textos
                     InkWell(
                       onTap: () {
@@ -124,7 +125,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (userRole == 'Caja' || userRole == 'Admin') ...[
+                  if (userRole == 'Caja') ...[
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {
@@ -142,7 +143,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (userRole == 'Corredor' || userRole == 'Admin') ...[
+                  if (userRole == 'Corredor') ...[
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {
@@ -154,6 +155,25 @@ class HomeScreen extends StatelessWidget {
                       },
                       child: Text(
                         'Corredor',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (userRole == 'Admin') ...[
+                    SizedBox(width: 100),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => EmpleadosScreen()),
+                        );
+                      },
+                      child: Text(
+                        'Empleados',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14.0,

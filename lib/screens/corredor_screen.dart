@@ -42,7 +42,7 @@ class _CorredorHomePageState extends State<CorredorHomePage> {
         .from('mesasAsignadas')
         .select('mesa!inner(id, numero, estatus, cliente, comanda)')
         .eq('idUsuario', userId)
-        .filter('mesa.estatus', 'eq', 'Por limpiar')
+        .eq('mesa.estatus', 'Por limpiar')
         .order('id', ascending: true);
 
     if (response.length > 0) {
@@ -61,6 +61,11 @@ class _CorredorHomePageState extends State<CorredorHomePage> {
     await supabase
         .from('mesa')
         .update({'estatus': 'Limpiado'}).eq('id', mesaId);
+
+    
+    setState(() {
+      mesas.clear();
+    });
 
     fetchMesas();
   }
@@ -125,9 +130,7 @@ class _CorredorHomePageState extends State<CorredorHomePage> {
             ),
             SizedBox(height: 16),
             Expanded(
-              child: mesas.isEmpty
-                  ? Center(child: CircularProgressIndicator())
-                  : SingleChildScrollView(
+              child:  SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
