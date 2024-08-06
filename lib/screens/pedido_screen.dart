@@ -46,8 +46,9 @@ class _PedidoScreenState extends State<PedidoScreen> {
 
     final response = await supabase
         .from('mesasAsignadas')
-        .select('mesa(id, numero)')
+        .select('mesa!inner(id, numero)')
         .eq('idUsuario', userId)
+        .eq('mesa.estatus', 'Asignada')
         .order('id', ascending: true);
 
     if (response.length > 0) {

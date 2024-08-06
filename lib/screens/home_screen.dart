@@ -5,6 +5,8 @@ import 'package:desayunos_valderrama/screens/empleados_screen.dart';
 import 'package:desayunos_valderrama/screens/mesa_screen.dart';
 import 'package:desayunos_valderrama/screens/mesas_mesero_screen.dart';
 import 'package:desayunos_valderrama/screens/pedido_screen.dart';
+import 'package:desayunos_valderrama/screens/reporte_screen.dart';
+import 'package:desayunos_valderrama/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,6 +14,15 @@ class HomeScreen extends StatelessWidget {
   Future<String?> _getUserRole() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('userRole');
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
   }
 
   @override
@@ -33,6 +44,7 @@ class HomeScreen extends StatelessWidget {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  SizedBox(width: 30),
                   InkWell(
                     onTap: () {
                       Navigator.pushReplacement(
@@ -70,7 +82,7 @@ class HomeScreen extends StatelessWidget {
                     SizedBox(width: 100), // Espacio entre los textos
                     InkWell(
                       onTap: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => MeseroMesasScreen()),
@@ -89,7 +101,7 @@ class HomeScreen extends StatelessWidget {
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => PedidoScreen()),
@@ -109,7 +121,7 @@ class HomeScreen extends StatelessWidget {
                     InkWell(
                       onTap: () {
                         // Acción para 'Ordenes'
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => CocinaScreen()),
@@ -129,7 +141,7 @@ class HomeScreen extends StatelessWidget {
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => CajaScreen()),
                         );
@@ -147,7 +159,7 @@ class HomeScreen extends StatelessWidget {
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => CorredorScreen()),
@@ -166,7 +178,7 @@ class HomeScreen extends StatelessWidget {
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => EmpleadosScreen()),
@@ -181,6 +193,37 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
+                  if (userRole == 'Admin') ...[
+                    SizedBox(width: 100),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ReportesScreen()),
+                        );
+                      },
+                      child: Text(
+                        'Reportes',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                  Spacer(),
+                  InkWell(
+                    onTap: () => _logout(context),
+                    child: Text(
+                      'Cerrar sesión',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.0,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 30),
                 ],
               );
             },
