@@ -21,8 +21,11 @@ class _CajaScreenState extends State<CajaScreen> {
   }
 
   Future<void> fetchMesas() async {
-    final response =
-        await supabase.from('mesa').select('*').order('id', ascending: true);
+    final response = await supabase
+        .from('mesa')
+        .select('*')
+        .eq('estatus', 'Comiendo')
+        .order('id', ascending: true);
 
     setState(() {
       mesas = response as List<dynamic>;
@@ -76,7 +79,7 @@ class _CajaScreenState extends State<CajaScreen> {
 
         await supabase
             .from('mesa')
-            .update({'estatus': 'Por limpiar'}).eq('id', selectedMesaId);
+            .update({'estatus': 'Sucia'}).eq('id', selectedMesaId);
 
         setState(() {
           detallePedido.clear();

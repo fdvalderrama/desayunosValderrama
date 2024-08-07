@@ -1,4 +1,5 @@
 import 'package:desayunos_valderrama/screens/home_screen.dart';
+import 'package:desayunos_valderrama/screens/reporte_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -119,6 +120,23 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
                   ),
                 ),
               ),
+              SizedBox(width: 100),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ReportesScreen()),
+                        );
+                      },
+                      child: Text(
+                        'Reportes',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.0,
+                        ),
+                      ),
+                    ),
             ],
           ),
         ),

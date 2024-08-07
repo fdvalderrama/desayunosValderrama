@@ -3,6 +3,7 @@ import 'package:desayunos_valderrama/screens/mesas_mesero_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:intl/intl.dart';
 
 class PedidoScreen extends StatefulWidget {
   @override
@@ -46,7 +47,7 @@ class _PedidoScreenState extends State<PedidoScreen> {
 
     final response = await supabase
         .from('mesasAsignadas')
-        .select('mesa!inner(id, numero)')
+        .select('mesa!inner(id, numero, comanda, cliente)')
         .eq('idUsuario', userId)
         .eq('mesa.estatus', 'Asignada')
         .order('id', ascending: true);
@@ -89,17 +90,30 @@ class _PedidoScreenState extends State<PedidoScreen> {
   Future<void> generarPedido() async {
     if (selectedMesa == null) return;
 
+    final fechaActual = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    // Obtener número de comanda y nombre del cliente de la mesa seleccionada
+    final mesaResponse = await supabase
+        .from('mesa')
+        .select()
+        .eq('id', selectedMesa)
+        .single();
+
+    final comanda = mesaResponse['comanda'];
+    final cliente = mesaResponse['cliente'];
+
     await supabase.from('pedido').insert({
-      'estatus': 'En revisión',
+      'estatus': 'En cocina',
       'idMesa': selectedMesa,
+      'fecha': fechaActual,
+      'comanda': comanda,
+      'cliente': cliente,
     });
 
     final latestPedidoResponse = await supabase
         .from('pedido')
         .select()
-        .order('id',
-            ascending:
-                false) // Asegúrate de usar el campo correcto para ordenar
+        .order('id', ascending: false)
         .limit(1);
 
     final idPedido = latestPedidoResponse[0]['id'];
@@ -122,7 +136,10 @@ class _PedidoScreenState extends State<PedidoScreen> {
 
     setState(() {
       pedido.clear();
+      selectedMesa = null;
     });
+
+    fetchMesas();
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Pedido generado con éxito')),
@@ -236,14 +253,13 @@ class _PedidoScreenState extends State<PedidoScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
-        toolbarHeight: 70.0, // Ajusta la altura del AppBar según sea necesario
+        toolbarHeight: 70.0,
         title: Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               InkWell(
                 onTap: () {
-                  // Acción para 'Home'
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -253,15 +269,13 @@ class _PedidoScreenState extends State<PedidoScreen> {
                   'Inicio',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize:
-                        14.0, // Ajusta el tamaño del texto según sea necesario
+                    fontSize: 14.0,
                   ),
                 ),
               ),
-              SizedBox(width: 100), // Espacio entre los textos
+              SizedBox(width: 100),
               InkWell(
                 onTap: () {
-                  // Acción para 'Mesas'
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -279,7 +293,6 @@ class _PedidoScreenState extends State<PedidoScreen> {
               SizedBox(width: 100),
               InkWell(
                 onTap: () {
-                  // Acción para 'Ordenes'
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => PedidoScreen()),
@@ -289,16 +302,14 @@ class _PedidoScreenState extends State<PedidoScreen> {
                   'Pedido',
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize:
-                          14.0 // Ajusta el tamaño del texto según sea necesario
-                      ),
+                      fontSize: 14.0),
                 ),
               ),
-              SizedBox(width: 100), // Espacio entre los textos
+              SizedBox(width: 100),
             ],
           ),
         ),
-        automaticallyImplyLeading: false, // Esto oculta el botón de atrás
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -346,8 +357,7 @@ class _PedidoScreenState extends State<PedidoScreen> {
                                           cells: [
                                             DataCell(
                                               Container(
-                                                width:
-                                                    100, // Ajusta el ancho según sea necesario
+                                                width: 100,
                                                 child: Text(
                                                   producto['nombre'].toString(),
                                                   textAlign: TextAlign.center,
@@ -356,14 +366,12 @@ class _PedidoScreenState extends State<PedidoScreen> {
                                             ),
                                             DataCell(
                                               Container(
-                                                width:
-                                                    150, // Ajusta el ancho según sea necesario
+                                                width: 150,
                                                 child: Text(
                                                   producto['descripcion']
                                                       .toString(),
                                                   textAlign: TextAlign.center,
-                                                  softWrap:
-                                                      true, // Permite el ajuste de texto
+                                                  softWrap: true,
                                                 ),
                                               ),
                                             ),

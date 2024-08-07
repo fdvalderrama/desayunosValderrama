@@ -42,7 +42,7 @@ class _CorredorHomePageState extends State<CorredorHomePage> {
         .from('mesasAsignadas')
         .select('mesa!inner(id, numero, estatus, cliente, comanda)')
         .eq('idUsuario', userId)
-        .eq('mesa.estatus', 'Por limpiar')
+        .eq('mesa.estatus', 'Sucia')
         .order('id', ascending: true);
 
     if (response.length > 0) {
@@ -60,7 +60,7 @@ class _CorredorHomePageState extends State<CorredorHomePage> {
   Future<void> updateMesaStatus(int mesaId) async {
     await supabase
         .from('mesa')
-        .update({'estatus': 'Limpiado'}).eq('id', mesaId);
+        .update({'estatus': 'Limpiada'}).eq('id', mesaId);
 
     
     setState(() {

@@ -1,3 +1,4 @@
+import 'package:desayunos_valderrama/screens/empleados_screen.dart';
 import 'package:desayunos_valderrama/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -28,7 +29,7 @@ class _ReportesScreenState extends State<ReportesScreen> {
           .gte('fecha', startDate!.toIso8601String())
           .lte('fecha', endDate!.toIso8601String());
 
-      if (response.isNotEmpty) {
+      if (response.length > 0) {
         final List<int> pedidoIds =
             response.map<int>((pedido) => pedido['id']).toList();
         final detalleResponse = await supabase
@@ -116,11 +117,11 @@ class _ReportesScreenState extends State<ReportesScreen> {
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => ReportesScreen()),
+                    MaterialPageRoute(builder: (context) => EmpleadosScreen()),
                   );
                 },
                 child: Text(
-                  'Reportes',
+                  'Empleados',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14.0,

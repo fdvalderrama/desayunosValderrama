@@ -41,7 +41,7 @@ class _MeseroHomePageState extends State<MeseroHomePage> {
 
     final response = await supabase
         .from('mesasAsignadas')
-        .select('mesa(id, numero, estatus, cliente, comanda)')
+        .select('mesa(id, numero, estatus, cliente)')
         .eq('idUsuario', userId)
         .order('id', ascending: true);
 
@@ -147,14 +147,12 @@ class _MeseroHomePageState extends State<MeseroHomePage> {
                               DataColumn(label: Text('Número')),
                               DataColumn(label: Text('Estatus')),
                               DataColumn(label: Text('Cliente')),
-                              DataColumn(label: Text('N. Comanda')),
                             ],
                             rows: mesas
                                 .map((mesa) => DataRow(cells: [
                                       DataCell(Text(mesa['numero'].toString())),
                                       DataCell(Text(mesa['estatus'].toString())),
                                       DataCell(Text(mesa['cliente'] ?? '')),
-                                      DataCell(Text(mesa['comanda']?.toString() ?? '')),
                                     ]))
                                 .toList(),
                           ),

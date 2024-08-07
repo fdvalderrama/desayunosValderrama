@@ -36,6 +36,7 @@ class _HomePageState extends State<HomePage> {
     final response = await supabase
         .from('mesa')
         .select()
+        .eq('estatus', 'Limpiada')
         .order('id', ascending: true);
     if (response.length > 0) {
       setState(() {
@@ -55,6 +56,10 @@ class _HomePageState extends State<HomePage> {
           'estatus': 'Asignada',
         })
         .eq('id', id);
+
+      setState(() {
+        mesas.clear();
+      });
 
       fetchMesas(); // Refrescar las mesas después de la actualización
 
@@ -120,9 +125,7 @@ class _HomePageState extends State<HomePage> {
       ),
       SizedBox(height: 16),
       Expanded(
-        child: mesas.isEmpty
-            ? Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
+        child: SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -154,15 +157,15 @@ class _HomePageState extends State<HomePage> {
                                             content: Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                Text('ID de Mesa: ${mesa['id']}'),
-                                                SizedBox(height: 8),
-                                                Text('Número de Comanda: $comanda'),
                                                 TextField(
                                                   controller: clienteController,
                                                   decoration: InputDecoration(
                                                     labelText: 'Nombre del Cliente',
                                                   ),
                                                 ),
+                                                SizedBox(height: 28),
+                                                Text('Número de Comanda: $comanda'),
+                                                SizedBox(height: 8),
                                               ],
                                             ),
                                             actions: [

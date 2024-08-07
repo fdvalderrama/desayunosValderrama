@@ -22,7 +22,7 @@ class _CocinaScreenState extends State<CocinaScreen> {
     final response = await supabase
         .from('pedido')
         .select('*, mesa(numero, comanda)')
-        .eq('estatus', 'Aceptado');
+        .eq('estatus', 'En cocina');
 
     setState(() {
       pedidos = response as List<dynamic>;
