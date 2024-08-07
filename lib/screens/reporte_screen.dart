@@ -22,16 +22,35 @@ class _ReportesScreenState extends State<ReportesScreen> {
   }
 
   Future<void> generateReport() async {
+    setState(() {
+      // Limpiar datos de la tabla y total antes de generar el nuevo reporte
+      reportData = [];
+      totalSales = 0.0;
+    });
+
     if (startDate != null && endDate != null) {
-      final response = await supabase
-          .from('pedido')
-          .select('id')
-          .gte('fecha', startDate!.toIso8601String())
-          .lte('fecha', endDate!.toIso8601String());
+      var response;
+      if (selectedPeriod == 'Día') {
+        // Filtrar pedidos solo para el día específico
+        response = await supabase
+            .from('pedido')
+            .select('id')
+            .eq('fecha', startDate!.toIso8601String().split('T')[0]);
+      } else {
+        // Filtrar pedidos para el período seleccionado
+        response = await supabase
+            .from('pedido')
+            .select('id')
+            .gte('fecha', startDate!.toIso8601String())
+            .lte('fecha', endDate!.toIso8601String());
+      }
+
+      final List<int> pedidoIds = [];
 
       if (response.length > 0) {
-        final List<int> pedidoIds =
-            response.map<int>((pedido) => pedido['id']).toList();
+        for (var pedido in response) {
+          pedidoIds.add(pedido['id']);
+        }
         final detalleResponse = await supabase
             .from('detallePedido')
             .select('idProducto, cantidad')
@@ -149,124 +168,136 @@ class _ReportesScreenState extends State<ReportesScreen> {
         ),
         automaticallyImplyLeading: false,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Center(
-              child: Text(
-                'Reportes de Ventas',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-            ),
-            DropdownButton<String>(
-              hint: Text("Selecciona el periodo del reporte"),
-              value: selectedPeriod,
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedPeriod = newValue;
-                  updateEndDate();
-                });
-              },
-              items: ['Día', 'Semana', 'Mes']
-                  .map<DropdownMenuItem<String>>((String period) {
-                return DropdownMenuItem<String>(
-                  value: period,
-                  child: Text(period),
-                );
-              }).toList(),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Fecha Inicio',
-                    ),
-                    readOnly: true,
-                    onTap: () async {
-                      DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: startDate ?? DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2101),
-                      );
-                      if (pickedDate != null) {
-                        setState(() {
-                          startDate = pickedDate;
-                          updateEndDate();
-                        });
-                      }
-                    },
-                    controller: TextEditingController(
-                      text: startDate != null
-                          ? "${startDate!.toLocal()}".split(' ')[0]
-                          : '',
-                    ),
-                  ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(
+                child: Text(
+                  'Reportes de Ventas',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(width: 16.0),
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Fecha Fin',
-                    ),
-                    readOnly: true,
-                    controller: TextEditingController(
-                      text: endDate != null
-                          ? "${endDate!.toLocal()}".split(' ')[0]
-                          : '',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20.0),
-            Center(
-              child: ElevatedButton(
-                onPressed: generateReport,
-                child: Text('Generar Reporte'),
               ),
-            ),
-            SizedBox(height: 20.0),
-            if (reportData.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              DropdownButton<String>(
+                hint: Text("Selecciona el periodo del reporte"),
+                value: selectedPeriod,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedPeriod = newValue;
+                    updateEndDate();
+                  });
+                },
+                items: ['Día', 'Semana', 'Mes']
+                    .map<DropdownMenuItem<String>>((String period) {
+                  return DropdownMenuItem<String>(
+                    value: period,
+                    child: Text(period),
+                  );
+                }).toList(),
+              ),
+              Row(
                 children: [
-                  Text(
-                    'Reporte de ventas del ${selectedPeriod?.toLowerCase() ?? ''}',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        labelText: 'Fecha Inicio',
+                      ),
+                      readOnly: true,
+                      onTap: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: startDate ?? DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2101),
+                        );
+                        if (pickedDate != null) {
+                          setState(() {
+                            startDate = pickedDate;
+                            updateEndDate();
+                          });
+                        }
+                      },
+                      controller: TextEditingController(
+                        text: startDate != null
+                            ? "${startDate!.toLocal()}".split(' ')[0]
+                            : '',
+                      ),
+                    ),
                   ),
-                  DataTable(
-                    columns: [
-                      DataColumn(label: Text('Producto')),
-                      DataColumn(label: Text('Precio')),
-                      DataColumn(label: Text('Cantidad')),
-                      DataColumn(label: Text('Subtotal')),
-                    ],
-                    rows: reportData.map((data) {
-                      return DataRow(
-                        cells: [
-                          DataCell(Text(data['Producto'])),
-                          DataCell(Text(data['Precio'].toString())),
-                          DataCell(Text(data['Cantidad'].toString())),
-                          DataCell(Text(data['Subtotal'].toString())),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    child: Text(
-                      'Ventas Totales: \$${totalSales.toStringAsFixed(2)}',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  SizedBox(width: 16.0),
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        labelText: 'Fecha Fin',
+                      ),
+                      readOnly: true,
+                      controller: TextEditingController(
+                        text: endDate != null
+                            ? "${endDate!.toLocal()}".split(' ')[0]
+                            : '',
+                      ),
                     ),
                   ),
                 ],
               ),
-          ],
+              SizedBox(height: 20.0),
+              Center(
+                child: ElevatedButton(
+                  onPressed: generateReport,
+                  child: Text('Generar Reporte'),
+                ),
+              ),
+              SizedBox(height: 20.0),
+              if (reportData.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Text(
+                        'Reporte de ventas del ${selectedPeriod?.toLowerCase() ?? ''}',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Center(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          columns: [
+                            DataColumn(label: Text('Producto')),
+                            DataColumn(label: Text('Precio')),
+                            DataColumn(label: Text('Cantidad')),
+                            DataColumn(label: Text('Subtotal')),
+                          ],
+                          rows: reportData.map((data) {
+                            return DataRow(
+                              cells: [
+                                DataCell(Text(data['Producto'])),
+                                DataCell(Text(data['Precio'].toString())),
+                                DataCell(Text(data['Cantidad'].toString())),
+                                DataCell(Text(data['Subtotal'].toString())),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: Text(
+                          'Ventas Totales: \$${totalSales.toStringAsFixed(2)}',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );
