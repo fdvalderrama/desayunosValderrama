@@ -12,6 +12,7 @@ class MeseroMesasScreen extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      debugShowCheckedModeBanner: false,
       home: MeseroHomePage(),
     );
   }

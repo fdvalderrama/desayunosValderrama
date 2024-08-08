@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:math';
 
-
 class MesaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -12,6 +11,7 @@ class MesaScreen extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      debugShowCheckedModeBanner: false,
       home: HomePage(),
     );
   }
@@ -36,7 +36,6 @@ class _HomePageState extends State<HomePage> {
     final response = await supabase
         .from('mesa')
         .select()
-        .eq('estatus', 'Limpiada')
         .order('id', ascending: true);
     if (response.length > 0) {
       setState(() {
@@ -48,7 +47,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> asignarMesa(int id, String cliente, int comanda) async {
-        await supabase
+    await supabase
         .from('mesa')
         .update({
           'cliente': cliente,
@@ -57,12 +56,11 @@ class _HomePageState extends State<HomePage> {
         })
         .eq('id', id);
 
-      setState(() {
-        mesas.clear();
-      });
+    setState(() {
+      mesas.clear();
+    });
 
-      fetchMesas(); // Refrescar las mesas después de la actualización
-
+    fetchMesas();
   }
 
   @override
@@ -70,14 +68,14 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
-        toolbarHeight: 70.0, // Ajusta la altura del AppBar según sea necesario
+        toolbarHeight: 70.0,
         title: Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               InkWell(
                 onTap: () {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => HomeScreen()),
                   );
@@ -86,15 +84,14 @@ class _HomePageState extends State<HomePage> {
                   'Inicio',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14.0, // Ajusta el tamaño del texto según sea necesario
+                    fontSize: 14.0,
                   ),
                 ),
               ),
-              SizedBox(width: 100), // Espacio entre los textos
+              SizedBox(width: 100),
               InkWell(
                 onTap: () {
-                  // Acción para 'Mesas'
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => MesaScreen()),
                   );
@@ -103,33 +100,33 @@ class _HomePageState extends State<HomePage> {
                   'Mesas',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14.0 // Ajusta el tamaño del texto según sea necesario
+                    fontSize: 14.0,
                   ),
                 ),
               ),
             ],
           ),
         ),
-        automaticallyImplyLeading: false, // Esto oculta el botón de atrás
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
-  padding: const EdgeInsets.all(16.0),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.center, // Cambiado a center para centrar la columna
-    children: [
-      const Center( // Añadido Center para centrar el título
-        child: Text(
-          'Asignar mesa',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-      ),
-      SizedBox(height: 16),
-      Expanded(
-        child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Center(
+              child: Text(
+                'Asignar mesa',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+            ),
+            SizedBox(height: 16),
+            Expanded(
+              child: SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: Center( // Añadido Center para centrar la tabla
+                  child: Center(
                     child: DataTable(
                       columns: const [
                         DataColumn(label: Text('Número')),
@@ -146,47 +143,49 @@ class _HomePageState extends State<HomePage> {
                                 DataCell(Text(mesa['comanda']?.toString() ?? '')),
                                 DataCell(
                                   ElevatedButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          final TextEditingController clienteController = TextEditingController();
-                                          final int comanda = Random().nextInt(900000) + 100000; // Generar número aleatorio de 6 dígitos
-                                          return AlertDialog(
-                                            title: Text('Asignar'),
-                                            content: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                TextField(
-                                                  controller: clienteController,
-                                                  decoration: InputDecoration(
-                                                    labelText: 'Nombre del Cliente',
+                                    onPressed: mesa['estatus'] == 'Limpiada'
+                                        ? () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                final TextEditingController clienteController = TextEditingController();
+                                                final int comanda = Random().nextInt(900000) + 100000;
+                                                return AlertDialog(
+                                                  title: Text('Asignar'),
+                                                  content: Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      TextField(
+                                                        controller: clienteController,
+                                                        decoration: InputDecoration(
+                                                          labelText: 'Nombre del Cliente',
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 28),
+                                                      Text('Número de Comanda: $comanda'),
+                                                      SizedBox(height: 8),
+                                                    ],
                                                   ),
-                                                ),
-                                                SizedBox(height: 28),
-                                                Text('Número de Comanda: $comanda'),
-                                                SizedBox(height: 8),
-                                              ],
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('Cancelar'),
-                                              ),
-                                              ElevatedButton(
-                                                onPressed: () {
-                                                  asignarMesa(mesa['id'], clienteController.text, comanda);
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('Guardar'),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                    },
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      child: Text('Cancelar'),
+                                                    ),
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        asignarMesa(mesa['id'], clienteController.text, comanda);
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      child: Text('Guardar'),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          }
+                                        : null,
                                     child: Text('Asignar'),
                                   ),
                                 ),
@@ -196,11 +195,10 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
+            ),
+          ],
+        ),
       ),
-    ],
-  ),
-),
-
     );
   }
 }

@@ -27,9 +27,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Desayunos Valderrama',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
       home: isLoggedIn ? HomeScreen() : LoginScreen(),
     );
   }

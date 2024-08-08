@@ -197,7 +197,7 @@ class _CocinaScreenState extends State<CocinaScreen> {
                                   DataColumn(
                                       label: Text('Nombre del Producto')),
                                   DataColumn(
-                                      label: Text('Ingredientes Opcionales')),
+                                      label: Text('Ingrediente Opcional')),
                                 ],
                                 rows: detallePedido.map((detalle) {
                                   return DataRow(
@@ -220,7 +220,7 @@ class _CocinaScreenState extends State<CocinaScreen> {
                                       DataCell(Container(
                                         width: 200,
                                         child: Text(
-                                            detalle['ingredientesOpcionales']
+                                            detalle['ingredienteOpcional']
                                                 .toString()),
                                       )),
                                     ],

@@ -11,6 +11,7 @@ class CorredorScreen extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      debugShowCheckedModeBanner: false,
       home: CorredorHomePage(),
     );
   }
@@ -105,7 +106,7 @@ class _CorredorHomePageState extends State<CorredorHomePage> {
                   );
                 },
                 child: Text(
-                  'Mesas',
+                  'Corredor',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14.0,

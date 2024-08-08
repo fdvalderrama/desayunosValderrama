@@ -77,12 +77,12 @@ class _PedidoScreenState extends State<PedidoScreen> {
   }
 
   void agregarProductoAlPedido(Map<String, dynamic> producto, int cantidad,
-      List<String> ingredientesOpcionales) {
+      String? ingredienteOpcional) {
     setState(() {
       pedido.add({
         'producto': producto,
         'cantidad': cantidad,
-        'ingredientesOpcionales': ingredientesOpcionales,
+        'ingredienteOpcional': ingredienteOpcional,
       });
     });
   }
@@ -92,7 +92,6 @@ class _PedidoScreenState extends State<PedidoScreen> {
 
     final fechaActual = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-    // Obtener número de comanda y nombre del cliente de la mesa seleccionada
     final mesaResponse = await supabase
         .from('mesa')
         .select()
@@ -121,12 +120,12 @@ class _PedidoScreenState extends State<PedidoScreen> {
     for (var item in pedido) {
       var cantidadItem = item['cantidad'];
       var idProductoItem = item['producto']['id'];
-      var ingredienteOpcionalItem = item['ingredientesOpcionales'].join(', ');
+      var ingredienteOpcionalItem = item['ingredienteOpcional'];
       await supabase.from('detallePedido').insert({
         'cantidad': cantidadItem,
         'idPedido': idPedido,
         'idProducto': idProductoItem,
-        'ingredientesOpcionales': ingredienteOpcionalItem,
+        'ingredienteOpcional': ingredienteOpcionalItem,
       });
     }
 
@@ -153,10 +152,8 @@ class _PedidoScreenState extends State<PedidoScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        final TextEditingController cantidadController =
-            TextEditingController();
-        List<String> selectedIngredientesOpcionales = [];
-        String? selectedDropdownIngrediente;
+        final TextEditingController cantidadController = TextEditingController();
+        String? selectedIngredienteOpcional;
 
         return StatefulBuilder(
           builder: (context, setState) {
@@ -176,49 +173,23 @@ class _PedidoScreenState extends State<PedidoScreen> {
                     if (ingredientesOpcionales.isNotEmpty)
                       Column(
                         children: [
-                          Text('Agregar ingredientes opcionales'),
-                          if (ingredientesOpcionales
-                              .any((i) => i['tipo'] != 'Agrega'))
-                            DropdownButton<String>(
-                              hint: Text('Selecciona el ingrediente'),
-                              value: selectedDropdownIngrediente,
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectedDropdownIngrediente = newValue;
-                                  if (newValue != null) {
-                                    selectedIngredientesOpcionales = [newValue];
-                                  }
-                                });
-                              },
-                              items: ingredientesOpcionales
-                                  .where((i) => i['tipo'] != 'Agrega')
-                                  .map<DropdownMenuItem<String>>((i) {
-                                return DropdownMenuItem<String>(
-                                  value: i['nombre'],
-                                  child: Text(i['nombre']),
-                                );
-                              }).toList(),
-                            ),
-                          ...ingredientesOpcionales
-                              .where((i) => i['tipo'] == 'Agrega')
-                              .map<Widget>((ingrediente) {
-                            return CheckboxListTile(
-                              title: Text(ingrediente['nombre']),
-                              value: selectedIngredientesOpcionales
-                                  .contains(ingrediente['nombre']),
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  if (value == true) {
-                                    selectedIngredientesOpcionales
-                                        .add(ingrediente['nombre']);
-                                  } else {
-                                    selectedIngredientesOpcionales
-                                        .remove(ingrediente['nombre']);
-                                  }
-                                });
-                              },
-                            );
-                          }).toList(),
+                          Text('Agregar ingrediente opcional'),
+                          DropdownButton<String>(
+                            hint: Text('Selecciona el ingrediente'),
+                            value: selectedIngredienteOpcional,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                selectedIngredienteOpcional = newValue;
+                              });
+                            },
+                            items: ingredientesOpcionales
+                                .map<DropdownMenuItem<String>>((i) {
+                              return DropdownMenuItem<String>(
+                                value: i['nombre'],
+                                child: Text(i['nombre']),
+                              );
+                            }).toList(),
+                          ),
                         ],
                       ),
                   ],
@@ -235,7 +206,7 @@ class _PedidoScreenState extends State<PedidoScreen> {
                   onPressed: () {
                     int cantidad = int.tryParse(cantidadController.text) ?? 1;
                     agregarProductoAlPedido(
-                        producto, cantidad, selectedIngredientesOpcionales);
+                        producto, cantidad, selectedIngredienteOpcional);
                     Navigator.of(context).pop();
                   },
                   child: Text('Agregar'),
@@ -278,8 +249,7 @@ class _PedidoScreenState extends State<PedidoScreen> {
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => MeseroMesasScreen()),
+                    MaterialPageRoute(builder: (context) => MeseroMesasScreen()),
                   );
                 },
                 child: Text(
@@ -300,9 +270,7 @@ class _PedidoScreenState extends State<PedidoScreen> {
                 },
                 child: Text(
                   'Pedido',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.0),
+                  style: TextStyle(color: Colors.white, fontSize: 14.0),
                 ),
               ),
               SizedBox(width: 100),
@@ -315,10 +283,6 @@ class _PedidoScreenState extends State<PedidoScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Text(
-              'Pedido',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
             Expanded(
               child: Row(
                 children: [
@@ -326,75 +290,118 @@ class _PedidoScreenState extends State<PedidoScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        Text(
+                          'Productos',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
                         Expanded(
-                          child: productos.isEmpty
-                              ? Center(child: CircularProgressIndicator())
-                              : SingleChildScrollView(
-                                  scrollDirection: Axis.vertical,
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: DataTable(
-                                      columns: const [
-                                        DataColumn(
-                                          label: Text('Producto',
-                                              textAlign: TextAlign.center),
-                                        ),
-                                        DataColumn(
-                                          label: Text('Descripción',
-                                              textAlign: TextAlign.center),
-                                        ),
-                                        DataColumn(
-                                          label: Text('Precio',
-                                              textAlign: TextAlign.center),
-                                        ),
-                                        DataColumn(
-                                          label: Text('Agregar',
-                                              textAlign: TextAlign.center),
-                                        ),
-                                      ],
-                                      rows: productos.map((producto) {
-                                        return DataRow(
-                                          cells: [
-                                            DataCell(
-                                              Container(
-                                                width: 100,
-                                                child: Text(
-                                                  producto['nombre'].toString(),
-                                                  textAlign: TextAlign.center,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20.0),
+                            child: productos.isEmpty
+                                ? Center(child: CircularProgressIndicator())
+                                : LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      return SingleChildScrollView(
+                                        scrollDirection: Axis.vertical,
+                                        child: SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              minWidth: constraints.maxWidth,
+                                            ),
+                                            child: DataTable(
+                                              columns: const [
+                                                DataColumn(
+                                                  label: Center(
+                                                    child: Text('Producto'),
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
-                                            DataCell(
-                                              Container(
-                                                width: 150,
-                                                child: Text(
-                                                  producto['descripcion']
-                                                      .toString(),
-                                                  textAlign: TextAlign.center,
-                                                  softWrap: true,
+                                                DataColumn(
+                                                  label: Center(
+                                                    child: Text('Descripción'),
+                                                  ),
                                                 ),
-                                              ),
+                                                DataColumn(
+                                                  label: Center(
+                                                    child: Text('Precio'),
+                                                  ),
+                                                ),
+                                                DataColumn(
+                                                  label: Center(
+                                                    child: Text('Agregar'),
+                                                  ),
+                                                ),
+                                              ],
+                                              rows: productos.map((producto) {
+                                                return DataRow(
+                                                  cells: [
+                                                    DataCell(
+                                                      Center(
+                                                        child: Container(
+                                                          width: 100,
+                                                          child: Text(
+                                                            producto['nombre']
+                                                                .toString(),
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    DataCell(
+                                                      Center(
+                                                        child: Container(
+                                                          constraints:
+                                                              BoxConstraints(
+                                                            maxWidth:
+                                                                constraints
+                                                                        .maxWidth *
+                                                                    0.4,
+                                                          ),
+                                                          child: Text(
+                                                            producto[
+                                                                    'descripcion']
+                                                                .toString(),
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            softWrap: true,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    DataCell(
+                                                      Center(
+                                                        child: Text(
+                                                          producto['precio']
+                                                              .toString(),
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    DataCell(
+                                                      Center(
+                                                        child: ElevatedButton(
+                                                          onPressed: () =>
+                                                              mostrarFormularioAgregar(
+                                                                  context,
+                                                                  producto),
+                                                          child:
+                                                              Text('Agregar'),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                );
+                                              }).toList(),
                                             ),
-                                            DataCell(
-                                              Text(
-                                                producto['precio'].toString(),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ),
-                                            DataCell(
-                                              ElevatedButton(
-                                                onPressed: () =>
-                                                    mostrarFormularioAgregar(
-                                                        context, producto),
-                                                child: Text('Agregar'),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      }).toList(),
-                                    ),
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                ),
+                          ),
                         ),
                       ],
                     ),
@@ -404,31 +411,50 @@ class _PedidoScreenState extends State<PedidoScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        Text(
+                          'Pedido',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
                         Expanded(
-                          child: DataTable(
-                            columns: const [
-                              DataColumn(
-                                  label: Text('Producto',
-                                      textAlign: TextAlign.center)),
-                              DataColumn(
-                                  label: Text('Cantidad',
-                                      textAlign: TextAlign.center)),
-                              DataColumn(
-                                  label: Text('Ingredientes Opcionales',
-                                      textAlign: TextAlign.center)),
-                            ],
-                            rows: pedido
-                                .map((item) => DataRow(cells: [
-                                      DataCell(Text(item['producto']['nombre'],
-                                          textAlign: TextAlign.center)),
-                                      DataCell(Text(item['cantidad'].toString(),
-                                          textAlign: TextAlign.center)),
-                                      DataCell(Text(
-                                          item['ingredientesOpcionales']
-                                              .join(', '),
-                                          textAlign: TextAlign.center)),
-                                    ]))
-                                .toList(),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20.0),
+                            child: DataTable(
+                              columns: const [
+                                DataColumn(
+                                    label: Center(
+                                      child: Text('Producto'),
+                                    )),
+                                DataColumn(
+                                    label: Center(
+                                      child: Text('Cantidad'),
+                                    )),
+                                DataColumn(
+                                    label: Center(
+                                      child: Text('Ingrediente Opcional'),
+                                    )),
+                              ],
+                              rows: pedido
+                                  .map((item) => DataRow(cells: [
+                                        DataCell(Center(
+                                          child: Text(
+                                              item['producto']['nombre'],
+                                              textAlign: TextAlign.center),
+                                        )),
+                                        DataCell(Center(
+                                          child: Text(
+                                              item['cantidad'].toString(),
+                                              textAlign: TextAlign.center),
+                                        )),
+                                        DataCell(Center(
+                                          child: Text(
+                                              item['ingredienteOpcional'] ??
+                                                  '',
+                                              textAlign: TextAlign.center),
+                                        )),
+                                      ]))
+                                  .toList(),
+                            ),
                           ),
                         ),
                         SizedBox(height: 16),
