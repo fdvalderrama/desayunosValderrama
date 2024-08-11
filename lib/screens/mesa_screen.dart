@@ -1,7 +1,6 @@
 import 'package:desayunos_valderrama/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:math';
 
 class MesaScreen extends StatelessWidget {
   @override
@@ -61,6 +60,20 @@ class _HomePageState extends State<HomePage> {
     });
 
     fetchMesas();
+  }
+
+  Future<int> obtenerUltimoIdPedido() async {
+  final response = await supabase
+      .from('pedido')
+      .select('id')
+      .order('id', ascending: false)
+      .limit(1);
+  
+  if (response.length > 0) {
+    return response[0]['id'] + 1;
+  } else {
+    return 1; // En caso de que no haya pedidos, empieza con el ID 1
+  }
   }
 
   @override
@@ -143,49 +156,50 @@ class _HomePageState extends State<HomePage> {
                                 DataCell(Text(mesa['comanda']?.toString() ?? '')),
                                 DataCell(
                                   ElevatedButton(
-                                    onPressed: mesa['estatus'] == 'Limpiada'
-                                        ? () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                final TextEditingController clienteController = TextEditingController();
-                                                final int comanda = Random().nextInt(900000) + 100000;
-                                                return AlertDialog(
-                                                  title: Text('Asignar'),
-                                                  content: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      TextField(
-                                                        controller: clienteController,
-                                                        decoration: InputDecoration(
-                                                          labelText: 'Nombre del Cliente',
-                                                        ),
-                                                      ),
-                                                      SizedBox(height: 28),
-                                                      Text('Número de Comanda: $comanda'),
-                                                      SizedBox(height: 8),
-                                                    ],
+                                    onPressed: mesa['estatus'] == 'Disponible'
+                                    ? () async {
+                                        final int comanda = await obtenerUltimoIdPedido();
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            final TextEditingController clienteController = TextEditingController();
+                                            return AlertDialog(
+                                              title: Text('Asignar'),
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  TextField(
+                                                    controller: clienteController,
+                                                    decoration: InputDecoration(
+                                                      labelText: 'Nombre del Cliente',
+                                                    ),
                                                   ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.of(context).pop();
-                                                      },
-                                                      child: Text('Cancelar'),
-                                                    ),
-                                                    ElevatedButton(
-                                                      onPressed: () {
-                                                        asignarMesa(mesa['id'], clienteController.text, comanda);
-                                                        Navigator.of(context).pop();
-                                                      },
-                                                      child: Text('Guardar'),
-                                                    ),
-                                                  ],
-                                                );
-                                              },
+                                                  SizedBox(height: 28),
+                                                  Text('Número de Comanda: $comanda'),
+                                                  SizedBox(height: 8),
+                                                ],
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text('Cancelar'),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    asignarMesa(mesa['id'], clienteController.text, comanda);
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text('Guardar'),
+                                                ),
+                                              ],
                                             );
-                                          }
-                                        : null,
+                                          },
+                                        );
+                                      }
+                                    : null,
+
                                     child: Text('Asignar'),
                                   ),
                                 ),

@@ -61,7 +61,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (userRole == 'Host') ...[
+                  if (userRole == 'Host' || userRole == 'Admin') ...[
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {
@@ -71,7 +71,7 @@ class HomeScreen extends StatelessWidget {
                         );
                       },
                       child: Text(
-                        'Mesas',
+                        'Host',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14.0,
@@ -79,7 +79,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (userRole == 'Mesero') ...[
+                  if (userRole == 'Mesero' || userRole == 'Admin') ...[
                     SizedBox(width: 100), // Espacio entre los textos
                     InkWell(
                       onTap: () {
@@ -98,7 +98,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (userRole == 'Mesero') ...[
+                  if (userRole == 'Mesero' || userRole == 'Admin') ...[
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {
@@ -117,7 +117,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (userRole == 'Cocina') ...[
+                  if (userRole == 'Cocina' || userRole == 'Admin') ...[
                     SizedBox(width: 100), // Espacio entre los textos
                     InkWell(
                       onTap: () {
@@ -138,7 +138,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (userRole == 'Caja') ...[
+                  if (userRole == 'Caja' || userRole == 'Admin') ...[
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {
@@ -156,7 +156,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (userRole == 'Corredor') ...[
+                  if (userRole == 'Corredor' || userRole == 'Admin') ...[
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {

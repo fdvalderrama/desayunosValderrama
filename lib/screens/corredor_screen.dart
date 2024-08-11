@@ -61,7 +61,7 @@ class _CorredorHomePageState extends State<CorredorHomePage> {
   Future<void> updateMesaStatus(int mesaId) async {
     await supabase
         .from('mesa')
-        .update({'estatus': 'Limpiada'}).eq('id', mesaId);
+        .update({'estatus': 'Disponible'}).eq('id', mesaId);
 
     
     setState(() {
