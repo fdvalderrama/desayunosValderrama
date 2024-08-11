@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: 20),
                 SizedBox(
-                  width: 400, // Cambia este valor según el ancho que prefieras
+                  width: 400,
                   child: TextField(
                     controller: _emailController,
                     decoration: InputDecoration(
@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: 20),
                 SizedBox(
-                  width: 400, // Cambia este valor según el ancho que prefieras
+                  width: 400,
                   child: TextField(
                     controller: _passwordController,
                     decoration: InputDecoration(

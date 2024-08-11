@@ -63,18 +63,27 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<int> obtenerUltimoIdPedido() async {
-  final response = await supabase
+  final responsePedido = await supabase
       .from('pedido')
       .select('id')
       .order('id', ascending: false)
       .limit(1);
-  
-  if (response.length > 0) {
-    return response[0]['id'] + 1;
-  } else {
-    return 1; // En caso de que no haya pedidos, empieza con el ID 1
+
+  int ultimoIdPedido = 1;
+  if (responsePedido.length > 0) {
+    ultimoIdPedido = responsePedido[0]['id'] + 1;
   }
-  }
+
+  final responseMesas = await supabase
+      .from('mesa')
+      .select('id')
+      .eq('estatus', 'Asignada');
+
+  int mesasAsignadas = responseMesas.length;
+
+  return ultimoIdPedido + mesasAsignadas;
+}
+
 
   @override
   Widget build(BuildContext context) {

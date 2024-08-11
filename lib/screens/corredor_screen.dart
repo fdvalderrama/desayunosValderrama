@@ -43,7 +43,6 @@ class _CorredorHomePageState extends State<CorredorHomePage> {
         .from('mesasAsignadas')
         .select('mesa!inner(id, numero, estatus, cliente, comanda)')
         .eq('idUsuario', userId)
-        .eq('mesa.estatus', 'Sucia')
         .order('id', ascending: true);
 
     if (response.length > 0) {
@@ -131,41 +130,47 @@ class _CorredorHomePageState extends State<CorredorHomePage> {
             ),
             SizedBox(height: 16),
             Expanded(
-              child:  SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Center(
-                          child: DataTable(
-                            columns: const [
-                              DataColumn(label: Text('Número')),
-                              DataColumn(label: Text('Estatus')),
-                              DataColumn(label: Text('Cliente')),
-                              DataColumn(label: Text('N. Comanda')),
-                              DataColumn(label: Text('')),
-                            ],
-                            rows: mesas
-                                .map((mesa) => DataRow(cells: [
-                                      DataCell(Text(mesa['numero'].toString())),
-                                      DataCell(
-                                          Text(mesa['estatus'].toString())),
-                                      DataCell(Text(mesa['cliente'] ?? '')),
-                                      DataCell(Text(
-                                          mesa['comanda']?.toString() ?? '')),
-                                      DataCell(
-                                        ElevatedButton(
-                                          onPressed: () {
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Center(
+                    child: DataTable(
+                      columns: const [
+                        DataColumn(label: Text('Número')),
+                        DataColumn(label: Text('Estatus')),
+                        DataColumn(label: Text('Cliente')),
+                        DataColumn(label: Text('N. Comanda')),
+                        DataColumn(label: Text('')),
+                      ],
+                      rows: mesas
+                          .map((mesa) => DataRow(cells: [
+                                DataCell(Text(mesa['numero'].toString())),
+                                DataCell(Text(mesa['estatus'].toString())),
+                                DataCell(Text(mesa['cliente'] ?? '')),
+                                DataCell(Text(mesa['comanda']?.toString() ?? '')),
+                                DataCell(
+                                  ElevatedButton(
+                                    onPressed: mesa['estatus'] == 'Sucia'
+                                        ? () {
                                             updateMesaStatus(mesa['id']);
-                                          },
-                                          child: Text('Limpiado'),
-                                        ),
-                                      ),
-                                    ]))
-                                .toList(),
-                          ),
-                        ),
-                      ),
+                                          }
+                                        : null,
+                                    child: Text('Limpiado'),
+                                    style: ElevatedButton.styleFrom(
+                                    backgroundColor: mesa['estatus'] == 'Pagado'
+                                        ? Colors.grey
+                                        : Colors.grey[400],
+                                        foregroundColor: Colors.white,
+                                  ),
+                                  ),
+                                ),
+                              ]))
+                          .toList(),
                     ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

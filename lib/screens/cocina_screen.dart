@@ -60,7 +60,7 @@ class _CocinaScreenState extends State<CocinaScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
-        toolbarHeight: 70.0, // Ajusta la altura del AppBar según sea necesario
+        toolbarHeight: 70.0, 
         title: Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

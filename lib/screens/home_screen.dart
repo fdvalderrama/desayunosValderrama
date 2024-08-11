@@ -79,8 +79,8 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (userRole == 'Mesero' || userRole == 'Admin') ...[
-                    SizedBox(width: 100), // Espacio entre los textos
+                  if (userRole == 'Mesero') ...[
+                    SizedBox(width: 100),
                     InkWell(
                       onTap: () {
                         Navigator.push(
@@ -98,7 +98,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (userRole == 'Mesero' || userRole == 'Admin') ...[
+                  if (userRole == 'Mesero') ...[
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {
@@ -118,10 +118,9 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                   if (userRole == 'Cocina' || userRole == 'Admin') ...[
-                    SizedBox(width: 100), // Espacio entre los textos
+                    SizedBox(width: 100), 
                     InkWell(
                       onTap: () {
-                        // Acción para 'Ordenes'
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -133,7 +132,7 @@ class HomeScreen extends StatelessWidget {
                         style: TextStyle(
                             color: Colors.white,
                             fontSize:
-                                14.0 // Ajusta el tamaño del texto según sea necesario
+                                14.0 
                             ),
                       ),
                     ),
@@ -156,7 +155,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (userRole == 'Corredor' || userRole == 'Admin') ...[
+                  if (userRole == 'Corredor') ...[
                     SizedBox(width: 100),
                     InkWell(
                       onTap: () {

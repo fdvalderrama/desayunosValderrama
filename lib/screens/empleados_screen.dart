@@ -54,7 +54,7 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
           'rol': rol,
         });
 
-    fetchEmpleados(); // Refrescar la lista de empleados después de la inserción
+    fetchEmpleados(); 
   }
 
   Future<void> actualizarEmpleado(int id, String nombre, String email, String password, String rol) async {
@@ -68,8 +68,8 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
         })
         .eq('id', id);
 
-    fetchEmpleados(); // Refrescar la lista de empleados después de la actualización
-  }
+    fetchEmpleados(); 
+  
 
   Future<void> eliminarEmpleado(int id) async {
     await supabase
@@ -77,7 +77,7 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
         .delete()
         .eq('id', id);
 
-    fetchEmpleados(); // Refrescar la lista de empleados después de la eliminación
+    fetchEmpleados(); 
   }
 
   @override
@@ -163,7 +163,8 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
                     final TextEditingController nombreController = TextEditingController();
                     final TextEditingController emailController = TextEditingController();
                     final TextEditingController passwordController = TextEditingController();
-                    final TextEditingController rolController = TextEditingController();
+                    String rolSeleccionado = 'Host'; // Valor por defecto
+
                     return AlertDialog(
                       title: Text('Agregar Empleado'),
                       content: Column(
@@ -187,11 +188,22 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
                               labelText: 'Password',
                             ),
                           ),
-                          TextField(
-                            controller: rolController,
+                          DropdownButtonFormField<String>(
+                            value: rolSeleccionado,
                             decoration: InputDecoration(
                               labelText: 'Rol',
                             ),
+                            items: ['Host', 'Mesero', 'Cocina', 'Caja', 'Corredor', 'Admin']
+                                .map((rol) => DropdownMenuItem(
+                                      value: rol,
+                                      child: Text(rol),
+                                    ))
+                                .toList(),
+                            onChanged: (nuevoRol) {
+                              setState(() {
+                                rolSeleccionado = nuevoRol!;
+                              });
+                            },
                           ),
                         ],
                       ),
@@ -208,7 +220,7 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
                               nombreController.text,
                               emailController.text,
                               passwordController.text,
-                              rolController.text,
+                              rolSeleccionado,
                             );
                             Navigator.of(context).pop();
                           },
@@ -218,6 +230,7 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
                     );
                   },
                 );
+
               },
               child: Text('Agregar Empleado'),
             ),
@@ -255,7 +268,8 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
                                                     final TextEditingController nombreController = TextEditingController(text: empleado['nombre']);
                                                     final TextEditingController emailController = TextEditingController(text: empleado['email']);
                                                     final TextEditingController passwordController = TextEditingController(text: empleado['password']);
-                                                    final TextEditingController rolController = TextEditingController(text: empleado['rol']);
+                                                    String rolSeleccionado = empleado['rol'];
+
                                                     return AlertDialog(
                                                       title: Text('Actualizar Empleado'),
                                                       content: Column(
@@ -279,11 +293,22 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
                                                               labelText: 'Password',
                                                             ),
                                                           ),
-                                                          TextField(
-                                                            controller: rolController,
+                                                          DropdownButtonFormField<String>(
+                                                            value: rolSeleccionado,
                                                             decoration: InputDecoration(
                                                               labelText: 'Rol',
                                                             ),
+                                                            items: ['Host', 'Mesero', 'Cocina', 'Caja', 'Corredor', 'Admin']
+                                                                .map((rol) => DropdownMenuItem(
+                                                                      value: rol,
+                                                                      child: Text(rol),
+                                                                    ))
+                                                                .toList(),
+                                                            onChanged: (nuevoRol) {
+                                                              setState(() {
+                                                                rolSeleccionado = nuevoRol!;
+                                                              });
+                                                            },
                                                           ),
                                                         ],
                                                       ),
@@ -301,7 +326,7 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
                                                               nombreController.text,
                                                               emailController.text,
                                                               passwordController.text,
-                                                              rolController.text,
+                                                              rolSeleccionado,
                                                             );
                                                             Navigator.of(context).pop();
                                                           },
@@ -311,6 +336,7 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
                                                     );
                                                   },
                                                 );
+
                                               },
                                               child: Text('Actualizar'),
                                             ),
