@@ -54,7 +54,7 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
           'rol': rol,
         });
 
-    fetchEmpleados(); 
+    fetchEmpleados(); // Refrescar la lista de empleados después de la inserción
   }
 
   Future<void> actualizarEmpleado(int id, String nombre, String email, String password, String rol) async {
@@ -68,8 +68,8 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
         })
         .eq('id', id);
 
-    fetchEmpleados(); 
-  
+    fetchEmpleados(); // Refrescar la lista de empleados después de la actualización
+  }
 
   Future<void> eliminarEmpleado(int id) async {
     await supabase
@@ -77,9 +77,8 @@ class _EmpleadosHomePageState extends State<EmpleadosHomePage> {
         .delete()
         .eq('id', id);
 
-    fetchEmpleados(); 
+    fetchEmpleados(); // Refrescar la lista de empleados después de la eliminación
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
